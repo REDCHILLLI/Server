@@ -1,0 +1,587 @@
+import { useState } from "react";
+import "./App.css";
+
+function App() {
+  // Array to store all students
+  const [students, setStudents] = useState([]);
+
+  // To change between form page and details page
+  const [page, setPage] = useState("form");
+
+  // Form fields
+  const [name, setName] = useState("");
+  const [age, setAge] = useState("");
+  const [contact, setContact] = useState("");
+  const [parentContact, setParentContact] = useState("");
+  const [address, setAddress] = useState("");
+  const [standard, setStandard] = useState("");
+
+  // Selected courses
+  const [selectedCourses, setSelectedCourses] = useState([]);
+
+  // Used for editing
+  const [editIndex, setEditIndex] = useState(null);
+
+
+  // 5 courses for each standard
+  const coursesByStandard = {
+    1: [
+      "English",
+      "Mathematics",
+      "Science",
+      "Drawing",
+      "Music"
+    ],
+
+    2: [
+      "English",
+      "Mathematics",
+      "Science",
+      "Computer",
+      "Sports"
+    ],
+
+    3: [
+      "English",
+      "Mathematics",
+      "Science",
+      "GK",
+      "Computer"
+    ],
+
+    4: [
+      "English",
+      "Mathematics",
+      "Science",
+      "Social Science",
+      "Computer"
+    ],
+
+    5: [
+      "English",
+      "Mathematics",
+      "Science",
+      "Social Science",
+      "Coding"
+    ]
+  };
+
+
+  // When standard is changed
+  function handleStandardChange(event) {
+    setStandard(event.target.value);
+
+    // Remove old selected courses
+    setSelectedCourses([]);
+  }
+
+
+  // Select or remove a course
+  function handleCourseChange(course) {
+
+    // If course is already selected
+    if (selectedCourses.includes(course)) {
+
+      const updatedCourses = selectedCourses.filter(
+        (item) => item !== course
+      );
+
+      setSelectedCourses(updatedCourses);
+
+    } else {
+
+      // Add new course
+      setSelectedCourses([
+        ...selectedCourses,
+        course
+      ]);
+
+    }
+  }
+
+
+  // Clear all form fields
+  function clearForm() {
+    setName("");
+    setAge("");
+    setContact("");
+    setParentContact("");
+    setAddress("");
+    setStandard("");
+    setSelectedCourses([]);
+    setEditIndex(null);
+  }
+
+
+  // Submit form
+  function handleSubmit(event) {
+    event.preventDefault();
+
+
+    // Simple validation
+    if (
+      name === "" ||
+      age === "" ||
+      contact === "" ||
+      parentContact === "" ||
+      address === "" ||
+      standard === ""
+    ) {
+      alert("Please fill all the fields");
+      return;
+    }
+
+
+    // Create student object
+    const student = {
+      name: name,
+      age: age,
+      contact: contact,
+      parentContact: parentContact,
+      address: address,
+      standard: standard,
+      courses: selectedCourses
+    };
+
+
+    // If editing student
+    if (editIndex !== null) {
+
+      // Copy students array
+      const updatedStudents = [...students];
+
+      // Replace old student with new data
+      updatedStudents[editIndex] = student;
+
+      // Update state
+      setStudents(updatedStudents);
+
+    } else {
+
+      // Add new student
+      setStudents([
+        ...students,
+        student
+      ]);
+
+    }
+
+
+    // Clear form
+    clearForm();
+
+    // Go to student details page
+    setPage("list");
+  }
+
+
+  // Edit student
+  function handleEdit(index) {
+
+    // Get selected student
+    const student = students[index];
+
+    // Put student data back into form
+    setName(student.name);
+    setAge(student.age);
+    setContact(student.contact);
+    setParentContact(student.parentContact);
+    setAddress(student.address);
+    setStandard(student.standard);
+    setSelectedCourses(student.courses);
+
+    // Store which student we are editing
+    setEditIndex(index);
+
+    // Go to form page
+    setPage("form");
+  }
+
+
+  // Delete student
+  function handleDelete(index) {
+
+    const updatedStudents = students.filter(
+      (student, currentIndex) => {
+
+        return currentIndex !== index;
+
+      }
+    );
+
+    setStudents(updatedStudents);
+  }
+
+
+  // Open onboarding form
+  function openForm() {
+    clearForm();
+    setPage("form");
+  }
+
+
+  return (
+
+    <div className="app">
+
+      <h1>School Onboarding System</h1>
+
+
+      {/* Navigation Buttons */}
+
+      <div className="navigation">
+
+        <button onClick={openForm}>
+          Add Student
+        </button>
+
+        <button onClick={() => setPage("list")}>
+          Student Details
+        </button>
+
+      </div>
+
+
+      {/* =========================
+          ONBOARDING FORM PAGE
+      ========================== */}
+
+      {page === "form" && (
+
+        <div className="form-container">
+
+          <h2>
+
+            {editIndex !== null
+              ? "Edit Student"
+              : "Student Onboarding Form"
+            }
+
+          </h2>
+
+
+          <form onSubmit={handleSubmit}>
+
+
+            {/* Student Name */}
+
+            <label>Student Name</label>
+
+            <input
+              type="text"
+              placeholder="Enter student name"
+              value={name}
+              onChange={(event) =>
+                setName(event.target.value)
+              }
+            />
+
+
+            {/* Age */}
+
+            <label>Age</label>
+
+            <input
+              type="number"
+              placeholder="Enter age"
+              value={age}
+              onChange={(event) =>
+                setAge(event.target.value)
+              }
+            />
+
+
+            {/* Student Contact */}
+
+            <label>Contact Number</label>
+
+            <input
+              type="text"
+              placeholder="Enter student contact number"
+              value={contact}
+              onChange={(event) =>
+                setContact(event.target.value)
+              }
+            />
+
+
+            {/* Parent Contact */}
+
+            <label>Parent Contact Number</label>
+
+            <input
+              type="text"
+              placeholder="Enter parent contact number"
+              value={parentContact}
+              onChange={(event) =>
+                setParentContact(event.target.value)
+              }
+            />
+
+
+            {/* Address */}
+
+            <label>Address</label>
+
+            <textarea
+              placeholder="Enter address"
+              value={address}
+              onChange={(event) =>
+                setAddress(event.target.value)
+              }
+            ></textarea>
+
+
+            {/* Standard */}
+
+            <label>Standard</label>
+
+            <select
+              value={standard}
+              onChange={handleStandardChange}
+            >
+
+              <option value="">
+                Select Standard
+              </option>
+
+              <option value="1">
+                1st Standard
+              </option>
+
+              <option value="2">
+                2nd Standard
+              </option>
+
+              <option value="3">
+                3rd Standard
+              </option>
+
+              <option value="4">
+                4th Standard
+              </option>
+
+              <option value="5">
+                5th Standard
+              </option>
+
+            </select>
+
+
+            {/* Courses */}
+
+            {standard !== "" && (
+
+              <div className="courses-container">
+
+                <h3>Available Courses</h3>
+
+                <p>
+                  Select any courses you want
+                </p>
+
+
+                {coursesByStandard[standard].map(
+                  (course) => (
+
+                    <div
+                      className="course"
+                      key={course}
+                    >
+
+                      <input
+                        type="checkbox"
+
+                        checked={
+                          selectedCourses.includes(course)
+                        }
+
+                        onChange={() =>
+                          handleCourseChange(course)
+                        }
+                      />
+
+                      <span>
+                        {course}
+                      </span>
+
+                    </div>
+
+                  )
+                )}
+
+              </div>
+
+            )}
+
+
+            {/* Submit Button */}
+
+            <button
+              type="submit"
+              className="submit-button"
+            >
+
+              {editIndex !== null
+                ? "Update Student"
+                : "Add Student"
+              }
+
+            </button>
+
+
+          </form>
+
+        </div>
+
+      )}
+
+
+      {/* =========================
+          STUDENT DETAILS PAGE
+      ========================== */}
+
+      {page === "list" && (
+
+        <div className="table-container">
+
+          <h2>Student Details</h2>
+
+
+          {students.length === 0 ? (
+
+            <div className="no-students">
+
+              <p>
+                No students added yet.
+              </p>
+
+              <button onClick={openForm}>
+                Add Student
+              </button>
+
+            </div>
+
+          ) : (
+
+            <div className="table-wrapper">
+
+              <table>
+
+                <thead>
+
+                  <tr>
+
+                    <th>Name</th>
+
+                    <th>Age</th>
+
+                    <th>Contact</th>
+
+                    <th>Parent Contact</th>
+
+                    <th>Address</th>
+
+                    <th>Standard</th>
+
+                    <th>Courses</th>
+
+                    <th>Actions</th>
+
+                  </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                  {students.map(
+                    (student, index) => (
+
+                      <tr key={index}>
+
+                        <td>
+                          {student.name}
+                        </td>
+
+
+                        <td>
+                          {student.age}
+                        </td>
+
+
+                        <td>
+                          {student.contact}
+                        </td>
+
+
+                        <td>
+                          {student.parentContact}
+                        </td>
+
+
+                        <td>
+                          {student.address}
+                        </td>
+
+
+                        <td>
+                          {student.standard}
+                        </td>
+
+
+                        <td>
+
+                          {student.courses.length > 0
+                            ? student.courses.join(", ")
+                            : "No courses selected"
+                          }
+
+                        </td>
+
+
+                        <td>
+
+                          <button
+                            className="edit-button"
+                            onClick={() =>
+                              handleEdit(index)
+                            }
+                          >
+                            Edit
+                          </button>
+
+
+                          <button
+                            className="delete-button"
+                            onClick={() =>
+                              handleDelete(index)
+                            }
+                          >
+                            Delete
+                          </button>
+
+                        </td>
+
+                      </tr>
+
+                    )
+                  )}
+
+                </tbody>
+
+              </table>
+
+            </div>
+
+          )}
+
+        </div>
+
+      )}
+
+    </div>
+  );
+}
+
+export default App;  
